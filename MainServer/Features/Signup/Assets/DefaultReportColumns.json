@@ -1,0 +1,74 @@
+{
+  "columns": [
+    {
+      "name": "Time Conversation Started",
+      "type": "DateTime",
+      "description": "The exact local date and time the chat was initiated by the user"
+    },
+    {
+      "name": "Time Conversation Ended",
+      "type": "DateTime",
+      "description": "The exact local date and time the chat ended based on the conditions previously discussed"
+    },
+    {
+      "name": "Name",
+      "type": "Text",
+      "description": "The customer's name, if mentioned"
+    },
+    {
+      "name": "Phone Number",
+      "type": "Text",
+      "description": "The customer's phone number"
+    },
+    {
+      "name": "Purpose of Customer Chat",
+      "type": "Text",
+      "description": "What the user was looking for (the purpose of initiating the chat)"
+    },
+    {
+      "name": "Assistance Provided",
+      "type": "Text",
+      "description": "How the chatbot was able to assist the user"
+    },
+    {
+      "name": "Products Inquired About",
+      "type": "Text",
+      "description": "What products did the customer inquire about?"
+    },
+    {
+      "name": "Complaints Raised",
+      "type": "Text",
+      "description": "Criticisms or complaints the user raised about the company or its products."
+    },
+    {
+      "name": "Customer Tone",
+      "type": "Text",
+      "description": "A short description of the customer's perceived tone during the chat (for example: hostile, neutral, friendly, etc.)"
+    },
+    {
+      "name": "Follow-Up Required By Sales",
+      "type": "Text",
+      "description": "Are there any actions a human sales agent should follow up on? (for example: providing more details about a product)"
+    },
+    {
+      "name": "Follow-Up Required By Customer Support",
+      "type": "Text",
+      "description": "Are there any actions a human customer support agent should follow up on? (for example: addressing a complaint about a product)"
+    },
+    {
+      "name": "Follow-Up Required By Management",
+      "type": "Text",
+      "description": "Are there any actions company management should follow up on? (for example: a complaint about an employee)"
+    },
+    {
+      "name": "Chat Summary",
+      "type": "Text",
+      "description": "A brief summary of the main points discussed in the chat"
+    },
+    {
+      "name": "Additional Noteworthy Information",
+      "type": "Text",
+      "description": "Any other information you find relevant or that may require follow-up"
+    }
+  ]
+}

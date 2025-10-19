@@ -1,0 +1,20 @@
+{
+  "columnTypes": [
+    {
+      "name": "Text",
+      "description": "A column that stores alphanumeric characters, such as names or notes."
+    },
+    {
+      "name": "Number",
+      "description": "A column that stores numeric values, including integers and decimals."
+    },
+    {
+      "name": "DateTime",
+      "description": "A column that stores calendar dates, useful for tracking time-related data."
+    },
+    {
+      "name": "Boolean",
+      "description": "A column that stores true/false values, typically used for flags or binary conditions."
+    }
+  ]
+}

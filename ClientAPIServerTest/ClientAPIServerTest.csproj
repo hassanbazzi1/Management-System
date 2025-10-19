@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<!-- 1️⃣ plain SDK -->
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<IsTestProject>true</IsTestProject>
+		<!-- 2️⃣ mark as tests -->
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<!-- 3️⃣ test adapter + framework -->
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+
+		<!-- pick ONE framework; here xUnit 2.x -->
+		<PackageReference Include="xunit" Version="2.5.6" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.5.6" PrivateAssets="all" />
+
+		<!-- optional coverage or mocks go here -->
+		<!-- <PackageReference Include="coverlet.collector" Version="6.0.0" /> -->
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- keep your project refs -->
+		<ProjectReference Include="..\Common\Common.csproj" />
+	</ItemGroup>
+
+</Project>

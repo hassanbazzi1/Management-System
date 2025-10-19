@@ -1,0 +1,1113 @@
+{
+  "name": "WhatsApp Chatbot OpenAI V1",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "id": "905f8653-4137-4f20-854f-0886c507f183",
+      "name": "WhatsApp Trigger",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "position": [
+        -800,
+        380
+      ],
+      "webhookId": "d3978cae-2aca-4553-8ac7-ab89068deabc",
+      "typeVersion": 1,
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "f4M4iHcRf4ZWABaF",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer EAAJiWra6z1UBO3ZBhxVVk4ENKTuhhSrkxVt1pinyuzxtLUzGHi4wUwruYrta0KtExIycTpmETdUAGIzhikFf2sluKvRORVJt4rojprc1o7zTi0CZCBRYLqGvGS8mZAo7PZBrvkudbfWiZBBwyqa8wboQDDaMH2wcrI6yWPcONrW3FRQib36j7Dqzh36gUE7VT2wxusAbmapaFWs2kYQrrTYowwt9aH3eD5PnL"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "53ece470-3f72-49d3-b436-5cd2d6e2524e",
+      "name": "Download Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -40,
+        180
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "id": "f626a35c-9cbf-4c86-ad67-d3cec0c2d33d",
+      "name": "Transcribe Audio",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        180,
+        180
+      ],
+      "typeVersion": 1.8,
+      "credentials": {
+        "openAiApi": {
+          "id": "9DElWGcWCRNlmEBd",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer EAAJiWra6z1UBO3ZBhxVVk4ENKTuhhSrkxVt1pinyuzxtLUzGHi4wUwruYrta0KtExIycTpmETdUAGIzhikFf2sluKvRORVJt4rojprc1o7zTi0CZCBRYLqGvGS8mZAo7PZBrvkudbfWiZBBwyqa8wboQDDaMH2wcrI6yWPcONrW3FRQib36j7Dqzh36gUE7VT2wxusAbmapaFWs2kYQrrTYowwt9aH3eD5PnL"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2e735edb-3270-4d8d-83e3-762c66925315",
+      "name": "Download File",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        180,
+        580
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $('WhatsApp Trigger').item.json.messages[0].document.id }}"
+      },
+      "id": "2a13313e-c42d-4550-89b4-114324097135",
+      "name": "Get File Url",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -40,
+        580
+      ],
+      "webhookId": "280bd5de-32d7-4d8f-93d2-e91e3b0bc161",
+      "typeVersion": 1,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "2Au05ehXKDCWYEbL",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n  if (item.binary) {\n    const binaryPropertyNames = Object.keys(item.binary);\n    for (const propName of binaryPropertyNames) {\n      if (item.binary[propName].mimeType === 'audio/mp3') {\n        item.binary[propName].mimeType = 'audio/mpeg';\n      }\n    }\n  }\n}\n\nreturn $input.all();"
+      },
+      "id": "8f658268-fd35-4e54-93da-44c36251155d",
+      "name": "Fix mimeType for Audio",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1580,
+        180
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "610141295521548",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "id": "6b61e3b1-ecec-4506-b988-abd04d420da0",
+      "name": "Send message",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        1360,
+        380
+      ],
+      "webhookId": "23834751-5066-48ba-8e19-549680df2b27",
+      "typeVersion": 1,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "2Au05ehXKDCWYEbL",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "610141295521548",
+        "recipientPhoneNumber": "={{ $('Input type').item.json.contacts[0].wa_id }}",
+        "messageType": "audio",
+        "mediaPath": "useMedian8n",
+        "additionalFields": {}
+      },
+      "id": "e5fc943e-07cf-4896-b035-e63567f9348a",
+      "name": "Send audio",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        1800,
+        180
+      ],
+      "webhookId": "d18b2c98-84e4-43cf-a532-0c47d5161684",
+      "typeVersion": 1,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "2Au05ehXKDCWYEbL",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "470271332838881",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "=Sorry but you can only send PDF files",
+        "additionalFields": {}
+      },
+      "id": "b74b87e1-f4ea-4e16-a124-576993f81969",
+      "name": "Incorrect format",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -40,
+        760
+      ],
+      "webhookId": "23834751-5066-48ba-8e19-549680df2b27",
+      "typeVersion": 1,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "2Au05ehXKDCWYEbL",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "70cc28a6-130c-4c9a-bd77-69cfaa08b2c1",
+              "name": "data",
+              "value": "={{ $json.messages[0].text.body }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b2810953-71c1-4fe6-a473-12c141c363b0",
+      "name": "Text",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        400,
+        -20
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "219577d5-b028-48fc-90be-980f4171ab68",
+              "name": "data",
+              "type": "string",
+              "value": "={{ $json.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f264398f-9ea8-4ee8-97dd-f3e42d890218",
+      "name": "Audio",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        400,
+        180
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "67552183-de2e-494a-878e-c2948e8cb6bb",
+              "name": "data",
+              "type": "string",
+              "value": "={{ $json }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d2ba5c59-e63d-4c60-8893-7fed0a278115",
+      "name": "File",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        400,
+        580
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "610141295521548",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "=You can only send text messages, images, audio files and PDF documents.",
+        "additionalFields": {}
+      },
+      "id": "e4c0dd3f-9fdf-4023-8165-ff4e489088e3",
+      "name": "Not supported",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -360,
+        960
+      ],
+      "webhookId": "23834751-5066-48ba-8e19-549680df2b27",
+      "typeVersion": 1,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "2Au05ehXKDCWYEbL",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $('WhatsApp Trigger').item.json.messages[0].image.id }}"
+      },
+      "id": "9421048c-8bad-4293-a081-e97aa79eba45",
+      "name": "Get Image Url",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -260,
+        380
+      ],
+      "webhookId": "280bd5de-32d7-4d8f-93d2-e91e3b0bc161",
+      "typeVersion": 1,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "2Au05ehXKDCWYEbL",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $('WhatsApp Trigger').item.json.messages[0].audio.id }}"
+      },
+      "id": "af9ecd33-020a-4bac-bd64-b38624a635a3",
+      "name": "Get Audio Url",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -260,
+        180
+      ],
+      "webhookId": "87caa300-7204-47b5-959a-94f4a8fbf8cf",
+      "typeVersion": 1,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "2Au05ehXKDCWYEbL",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "input": "={{ $('AI Agent').item.json.output }}",
+        "voice": "onyx",
+        "options": {}
+      },
+      "id": "e9013e7a-347e-403b-87c1-a0df6118eecb",
+      "name": "Generate Audio Response",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        1360,
+        180
+      ],
+      "typeVersion": 1.8,
+      "credentials": {
+        "openAiApi": {
+          "id": "9DElWGcWCRNlmEBd",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Audio\n",
+        "height": 180,
+        "width": 900
+      },
+      "id": "ff70179e-acd9-4fe0-b328-7f2c74da23a7",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        160
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Response",
+        "height": 960,
+        "width": 1340,
+        "color": 5
+      },
+      "id": "de31a220-8d21-48f9-8c39-397aade59ab5",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        -40
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "b9d1d759-f585-4791-a743-b9d72951e77c",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('WhatsApp Trigger').item.json.messages[0].audio }}",
+              "rightValue": ""
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "e1057597-5d0f-4732-97bf-5942a1547eb1",
+      "name": "From audio to audio?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1140,
+        280
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "08fd0c80-307e-4f45-b1de-35192ee4ec5e",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.messages[0].text.body }}",
+                    "rightValue": ""
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "b7b64446-f1ea-4622-990c-22f3999a8269",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.messages[0].audio }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Voice"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "202af928-a324-411a-bf15-68a349e7bf9e",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.messages[0].image }}",
+                    "rightValue": ""
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "c63299e9-6069-4bc6-afb9-7beebf6e3d69",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.messages[0].document }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Document"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "b6791579-ea8a-456c-b9a8-ddf8975b91c6",
+      "name": "Input type",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -580,
+        340
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer EAAJiWra6z1UBO3ZBhxVVk4ENKTuhhSrkxVt1pinyuzxtLUzGHi4wUwruYrta0KtExIycTpmETdUAGIzhikFf2sluKvRORVJt4rojprc1o7zTi0CZCBRYLqGvGS8mZAo7PZBrvkudbfWiZBBwyqa8wboQDDaMH2wcrI6yWPcONrW3FRQib36j7Dqzh36gUE7VT2wxusAbmapaFWs2kYQrrTYowwt9aH3eD5PnL"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8500a974-9dd9-4c02-bf4d-9c95dcd44bab",
+      "name": "Download Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -40,
+        380
+      ],
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.data }}",
+        "options": {
+          "systemMessage": "=The current date and time is {{ $now }}\nYou are an intelligent assistant. Your purpose is to provide support for customers of the Golden Teatox company. \nGolden Teatox is a company that sells detox teas that are meant to help people lose weight. \n\nYour capabilities are:\n- Process and respond to Whatsapp messages\n- Analyze uploaded files (such as images of a specific product)\n- Transcribe and understand voice messages\n- Respond appropriately based on the information provided on the Golden Teatox website.\n\nTo provide responses, you should use the following JSON object:\n\n{\n   \"json_data\":{\n      \"common_description\":{\n         \"product_description\":{\n            \"advantages\":[\n               \"100% Organic Herbal ingredients\",\n               \"Anti-toxic and worldwide approved specifically the FDA\",\n               \"Free Shipping\"\n            ],\n            \"tips\":[\n               \"The ideal water temperature for brewing herbal teas is 90°- 100°C.\"\n            ],\n            \"preparation\":{\n               \"steps\":[\n                  {\n                     \"name\":\"Step 1\",\n                     \"description\":\"Add a serving of Golden Teatox to your cup.\"\n                  },\n                  {\n                     \"name\":\"Step 2\",\n                     \"description\":\"Pour boiling water (90°- 100°C) over your Golden Teatox.\"\n                  },\n                  {\n                     \"name\":\"Step 3\",\n                     \"description\":\"Mix your cup well to make sure the tea is ready.\"\n                  },\n                  {\n                     \"name\":\"Step 4\",\n                     \"description\":\"Enjoy your tea and start losing weight!\"\n                  }\n               ]\n            },\n            \"promotions\":[\n               {\n                  \"name\":\"Scratch and Win\",\n                  \"description\":\"Get a chance to WIN exclusive prizes with every purchase from Golden Teatox\",\n                  \"possible_rewards\":[\n                     \"Valcambi Gold Ounce\",\n                     \"2 Months Free Supply\",\n                     \"30% OFF On Your Purchase\"\n                  ],\n                  \"steps_to_enter_the_draw\":[\n                     {\n                        \"name\":\"Get any of our Weight Loss Tea program\",\n                        \"description\":\"Add a serving of Golden Teatox to your cup.\"\n                     },\n                     {\n                        \"name\":\"Open the box to find your entry card inside\",\n                        \"description\":\"Pour boiling water (90°- 100°C) over your Golden Teatox.\"\n                     },\n                     {\n                        \"name\":\"Scratch the back of the card to reveal your prize\",\n                        \"description\":\"Mix your cup well to make sure the tea is ready.\"\n                     },\n                     {\n                        \"name\":\"Instantly win one of our exclusive prizes!\",\n                        \"description\":\"Enjoy your tea and start losing weight!\"\n                     }\n                  ]\n               }\n            ],\n            \"shop\":{\n               \"link\":\"https://goldenteatox.com/collections/frontpage\"\n            },\n            \"ingredients\":[\n               {\n                  \"name\":\"Gurmar\",\n                  \"description\":\"\"\n               },\n               {\n                  \"name\":\"Senna Leaves\",\n                  \"description\":\"\"\n               },\n               {\n                  \"name\":\"Ginseng\",\n                  \"description\":\"\"\n               },\n               {\n                  \"name\":\"Chamomile\",\n                  \"description\":\"\"\n               },\n               {\n                  \"name\":\"Dandelion Root\",\n                  \"description\":\"\"\n               },\n               {\n                  \"name\":\"Organic Ashwagandha Root Powder\",\n                  \"description\":\"\"\n               },\n               {\n                  \"name\":\"Organic Green Coffee Beans\",\n                  \"description\":\"\"\n               },\n               {\n                  \"name\":\"Indian Chebula\",\n                  \"description\":\"\"\n               },\n               {\n                  \"name\":\"Green Tea\",\n                  \"description\":\"\"\n               },\n               {\n                  \"name\":\"Bee Propolis\",\n                  \"description\":\"\"\n               },\n               {\n                  \"name\":\"Turmeric\",\n                  \"description\":\"\"\n               },\n               {\n                  \"name\":\"Cinnamon Bark\",\n                  \"description\":\"\"\n               },\n               {\n                  \"name\":\"Cardamom Seeds\",\n                  \"description\":\"\"\n               },\n               {\n                  \"name\":\"Organic Moringa Powder\",\n                  \"description\":\"\"\n               },\n               {\n                  \"name\":\"Organic Rooibos\",\n                  \"description\":\"\"\n               },\n               {\n                  \"name\":\"Organic Matcha Powder\",\n                  \"description\":\"\"\n               },\n               {\n                  \"name\":\"Organic Chlorella\",\n                  \"description\":\"\"\n               },\n               {\n                  \"name\":\"Organic Spirulina\",\n                  \"description\":\"\"\n               },\n               {\n                  \"name\":\"Organic Stevia\",\n                  \"description\":\"\"\n               }\n            ]\n         },\n         \"features\":[\n            \"No requirement for dietary restrictions or physical exercise\",\n            \"0 side effects\",\n            {\n               \"mechanism_of_action\":[\n                  \"Curbs appetite\",\n                  \"Supports optimal digestion\",\n                  \"Facilitates natural weight loss\",\n                  \"Enhances metabolism\",\n                  \"Boosts energy levels\",\n                  \"Reinforces your immune system\",\n                  \"Targets Stubborn Fats\"\n               ]\n            }\n         ]\n      },\n      \"company_description\":{\n         \"location\":{\n            \"headquarters\":\"Dubai\",\n            \"warehouses\":\"Operates warehouses in more than 7 countries\"\n         },\n         \"whoweare\":\"We are leading experts in the health & beauty industry that have created the most advanced weight loss program.\",\n         \"wherewesell\":\"Golden Teatox ships to more than 180 countries worldwide using the fastest express shipping service.\",\n         \"contact_info\":{\n            \"phone1\":\"+96181390399\",\n            \"phone2\":\"+971586371772\",\n            \"website\":\"goldenteatox.com\",\n            \"social_media\":{\n               \"facebook\":\"https://www.facebook.com/profile.php?id=61559820377125\",\n               \"instagram\":\"https://www.instagram.com/GOLDENTEATOX/\",\n               \"whatsapp\":\"https://api.whatsapp.com/send?phone=96181390399\"\n            }\n         }\n      },\n      \"help\":{\n         \"support_phone\":\"+971586371772\",\n\t\t \"shipping_policy\":\n\t\t {\n\t\t\t\"general\":[\"Domestic and international shipping is available\",\"We offer express shipping worldwide to ensure timely delivery\"],\n\t\t\t\"processing_time\":\"All orders are processed within 48 hours of receipt. Orders placed on weekends or holidays will be processed on the next business day\",\n\t\t\t\"shipping_time\":{\n\t\t\t\t\"domestic\":\"2-5 business days\",\n\t\t\t\t\"international\":\"5-10 business days, depending on the destination\"\n\t\t\t},\n\t\t\t\"shipping_charges\":Shipping charges are calculated at checkout based on the destination and weight of the package. Any customs duties or taxes imposed by the destination country are the responsibility of the customer.\",\n\t\t\t\"order_tracking\":\"Once your order has been shipped, you will receive a confirmation email with a tracking number to monitor your shipment's progress.\"\n\t\t },\n\t\t \"refund_policy\":\"We do not offer refunds unless the product has arrived damaged. In such cases, the customer must provide clear photographic or video evidence of the damage within 3 days of receiving the order. Once the claim is verified and approved by our team, a full or partial refund will be issued to the original payment method within 7 business days.\",\n\t\t \"return_policy\": {\n\t\t\t\"general\":\"We accept returns only within 3 days of receiving the product only if some conditions are met\",\n\t\t\t\"return_policy_conditions\":[\n\t\t\t\t\"The product is unopened, unused, and in its original packaging.\",\n\t\t\t\t\"You contact our customer service team at info@goldenteatox.com within this 3-day window to request a return authorization.\",\n\t\t\t\t\"You are responsible for the return shipping cost, and we recommend using a trackable shipping method.\"\n\t\t\t],\n\t\t\t\"non_returnable_items\":\"Due to hygiene and safety reasons, used or opened items are not eligible for return under any circumstances.\",\n\t\t\t\"exchange_policy\":\"We do not offer exchanges unless the wrong item was shipped or a defective product was received. If this occurs, please contact our team immediately at info@goldenteatox.com with proof.\"\n\t\t \n\t\t },\n\t\t \"terms_of_service\":{\n\t\t\t\"general\":\"By accessing our website and purchasing our products, you agree to comply with and be bound by the terms and conditions\",\n\t\t\t\"use_of_website\":\"You agree to use our website for lawful purposes only and in a manner that does not infringe on the rights of, restrict, or inhibit anyone else's use and enjoyment of the website\",\n\t\t\t\"product_information\":\"We strive to ensure that all product descriptions and prices are accurate. However, we reserve the right to correct any errors and to change or update information at any time without prior notice.\",\n\t\t\t\"intellectual_property\":\"All content on this website, including text, graphics, logos, and images, is the property of Golden Teatox and is protected by international copyright laws.\",\n\t\t\t\"limitation_of_liability\":\"Golden Teatox shall not be liable for any indirect, incidental, or consequential damages arising out of or in connection with the use of our products or website\",\n\t\t\t\"governing_law\":\"These terms and conditions are governed by and construed in accordance with the laws of  Lebanon, and you irrevocably submit to the exclusive jurisdiction of the courts in that location.\"\n\t\t},\n\t\t\"privacy_policy\":{\n\t\t\t\"information_collection\":\"We collect personal information, such as your name, email address, shipping address, and payment details, when you place an order or subscribe to our newsletter.\",\n\t\t\t\"use_of_information\":\"Your information is used to process transactions, deliver orders, communicate with you, and improve our services. We do not sell or share your personal information with third parties, except as necessary to fulfill your order (e.g., with shipping carriers).\",\n\t\t\t\"data_security\":\"We implement a variety of security measures to maintain the safety of your personal information. However, no method of transmission over the internet is 100% secure, and we cannot guarantee absolute security.\",\n\t\t\t\"cookies\":\"Our website uses cookies to enhance your browsing experience. You can choose to disable cookies through your browser settings, but this may affect the functionality of our website.\",\n\t\t\t\"third_party_links\":\"Our website may contain links to external sites. We are not responsible for the privacy practices or content of these third-party sites.\",\n\t\t\t\"policy_updates\":\"We reserve the right to update our privacy policy at any time. Changes will be posted on this page with an updated revision date.\"\n\t\t}\n      },\n      \"reviews\":{\n         \"key_points\":[\n            \"The product has a rating of 4.9/5 based on 198,000 reviews\",\n            \"It is celebrities' favorite weight loss tea\"\n         ]\n      },\n      \"results\":{\n         \n      },\n      \"programs\":[\n         {\n            \"name\":\"28 Days Program\",\n            \"features\":[\n               \n            ],\n            \"advantages\":[\n               \n            ],\n            \"associated_products\":[\n               \"Level 1 PRO: Lose up to 10Kgs\",\n               \"Level 2 PRO: Lose more than 10Kgs\"\n            ],\n            \"link\":\"https://goldenteatox.com/collections/golden-teatox-28-days-program\",\n\t\t\t\"image-url\":\"https://goldenteatox.com/cdn/shop/files/WhatsAppImage2021-12-02at9.41.21AM_8e4fdf6a-8e07-4fa1-8361-9ee0d6d197ac.jpg\"\n         },\n         {\n            \"name\":\"14 Days Program\",\n            \"features\":[\n               \n            ],\n            \"advantages\":[\n               \n            ],\n            \"associated_products\":[\n               \"14 Days: Level 1\",\n               \"14 Days: Level 2\"\n            ],\n            \"link\":\"https://goldenteatox.com/collections/golden-teatox-14-days-program\",\n\t\t\t\"image-url\":\"https://goldenteatox.com/cdn/shop/files/WhatsApp_Image_2024-07-31_at_9.24.25_PM_74f76e83-3f2e-4876-8f0b-aa608eead8fa.jpg\"\n         }\n      ],\n      \"products\":[\n         {\n            \"name\":\"Level 1 PRO\",\n            \"price\":85,\n\t\t\t\"discount\":0,\n            \"type\":\"Weight Loss Tea\",\n            \"features\":[\n               \"Comes with morning bag and night bag\"\n            ],\n            \"advantages\":[\n               \"Lose up to 10kg in Only 28 Days\"\n            ],\n            \"link\":\"https://goldenteatox.com/products/level-1-lose-up-to-10kgs\",\n\t\t\t\"image-url\":\"https://goldenteatox.com/cdn/shop/files/8.png\"\n         },\n         {\n            \"name\":\"Level 2 PRO\",\n            \"price\":130,\n\t\t\t\"discount\":0,\n            \"type\":\"Weight Loss Tea\",\n            \"features\":[\n               \"Comes with morning bag and night bag\"\n            ],\n            \"advantages\":[\n               \"Lose more than 10kg in Only 28 Days\",\n               \"Combines a variety of golden ingredients like Moringa Powder, Matcha Powder, Chlorella, Spirulina, and others\",\n               \"It supercharges your metabolism and provides sustained energy\",\n               \"Burns calories 5 times faster compared to Level 1 PRO\"\n            ],\n            \"link\":\"https://goldenteatox.com/products/28-days\",\n\t\t\t\"image-url\":\"https://goldenteatox.com/cdn/shop/files/7.png\"\n         },\n         {\n            \"name\":\"14 Days: Level 1\",\n            \"price\":49.99,\n\t\t\t\"discount\":0,\n            \"type\":\"Weight Loss Tea\",\n            \"features\":[\n               \"Comes with morning bag and night bag\",\n               {\n                  \"Morning Bag\":{\n                     \"advantages\":[\n                        \"An antioxidant rich blend of organic green coffee beans, Indian chebula, green tea and propolis combined with the supernatural duo - turmeric and cinnamon, and the cardamom to create a harmonious mix at its finest. A detox tea to cleanse harmful toxins, support a healthy immune system and turn the weight loss challenge into an aromatic fulfilling experience.\"\n                     ],\n                     \"preparation\":[\n                        \"Add 1 spoon to 1 cup of hot water and steep for 5 minutes.\",\n                        \"Enjoy your drink warm, 15 minutes before breakfast.\"\n                     ]\n                  }\n               },\n               {\n                  \"Night Bag\":{\n                     \"advantages\":[\n                        \"An exceptional herbal infusion comprised of gurmar, senna, ginseng, chamomile and dandelions which collectively aid cognitive health, treat indigestion and promote skin purification. A powerful remedy to soothe muscle pain and reduce stress naturally to keep up a fresh mood and a Golden shape\"\n                     ],\n                     \"preparation\":[\n                        \"Add 1 spoon to 1 cup of hot water and steep for 5 minutes.\",\n                        \"Drink a cup every other night. Enjoy it warm before bedtime.\"\n                     ]\n                  }\n               }\n            ],\n            \"link\":\"https://goldenteatox.com/products/14-days-level-1\",\n\t\t\t\"image-url\":\"https://goldenteatox.com/cdn/shop/products/LEVEL2_2.jpg\"\n         },\n         {\n            \"name\":\"14 Days: Level 2\",\n            \"price\":65,\n\t\t\t\"discount\":0,\n            \"type\":\"Weight Loss Tea\",\n            \"features\":[\n               \"Comes with morning bag and night bag\",\n               {\n                  \"Morning Bag\":{\n                     \"advantages\":[\n                        \"An antioxidant rich blend of organic green coffee beans, Indian chebula, green tea and propolis combined with the supernatural duo - turmeric and cinnamon, and the cardamom to create a harmonious mix at its finest. A detox tea to cleanse harmful toxins, support a healthy immune system and turn the weight loss challenge into an aromatic fulfilling experience.\"\n                     ],\n                     \"preparation\":[\n                        \"Add 1 spoon to 1 cup of hot water and steep for 5 minutes.\",\n                        \"Enjoy your drink warm, 15 minutes before breakfast.\"\n                     ]\n                  }\n               },\n               {\n                  \"Night Bag\":{\n                     \"advantages\":[\n                        \"An exceptional herbal infusion comprised of gurmar, senna, ginseng, chamomile and dandelions which collectively aid cognitive health, treat indigestion and promote skin purification. A powerful remedy to soothe muscle pain and reduce stress naturally to keep up a fresh mood and a Golden shape.\"\n                     ],\n                     \"preparation\":[\n                        \"Add 1 spoon to 1 cup of hot water and steep for 5 minutes.\",\n                        \"Drink a cup every other night. Enjoy it warm before bedtime.\"\n                     ]\n                  }\n               }\n            ],\n            \"advantages\":[\n               \"More weight loss than Level 1\"\n            ],\n            \"link\":\"https://goldenteatox.com/products/14-days-level-2\",\n\t\t\t\"image-url\":\"https://goldenteatox.com/cdn/shop/products/LEVEL2_3.jpg\"\n         },\n         {\n            \"name\":\"Golden Teatox Cup\",\n            \"price\":34.99,\n\t\t\t\"discount\":15,\n            \"type\":\"Mug\",\n            \"features\":[\n               \"Golden Teatox Cup for drinking you favorite day and night detox tea\"\n            ],\n            \"link\":\"https://goldenteatox.com/products/golden-teatox-cup\",\n\t\t\t\"image-url\":\"https://goldenteatox.com/cdn/shop/products/Golden_TeaTox_Cup1024x1024-removebg-preview.png\"\n         }\n      ]\n   }\n}\n\nThis object provides a description of the company and its' products in JSON format. You may analyze it to know more about the company and what it offers. This file is always up-to-date.\nThere are links to each product offered by the website and each program offered. \nYou should provide these to the customer when they request them or if they show interest in a product.\n\nIf you do not find an answer from the above JSON file, you must scalp the company website which has the following link:\nhttps://goldenteatox.com/\n\nUse the following guidelines to determine the price of a product when asked for it or when needed:\n- Unlike other information, always get the price of a product from the website\n- If you find a discount for a product, always show the discounted price while mentioning that the product is discounted currently and when the discount ends if possible\n- The discount is fixed and represents an absolute currency value. The discount never represents a percentage.\n- To discounted price should be displayed AS-IS from the website\n- In case the price cannot be obtained from the website, each product in the JSON file has 2 properties named price and discount. \n- The price property is the original price before discounts are applied.\n- To calculate the final discounted price from the JSON file: Discounted Price = Original Price - Discount\n- If the discount is 0, display only the original price \n\nPlease follow the below guidelines about ending a chat:\n- We need to define conditions upon which a chat ends in order to generate an automatic report after the chat\n- A chat will be considered over when the user types the word \"end\" or if the user doesn't type anything for 1 minutes\n- When either of the two conditions above are met, you should tell the user farewell and offer further assistance if needed\n- Use the \"Insert Google Sheets\" tool to insert the data\n- At the end of each chat, you should generate and insert a row into Google Sheets that summarizes the chat's main points and identifies any pending actions. This row represents a chat report.\n- NEVER send the chat report to the user\n- The row to be inserted into Google Sheets has the following columns in the order listed below. After each column name, there is a colon followed by a description of the column to enable you to generate its' value.\n\nTime Conversation Started: The exact local date and time the chat was initiated by the user\nTime Conversation Ended: The exact local date and time the chat ended based on the conditions previously discussed\nName: The customer's name, if mentioned\nPhone Number: The customer's phone number\nPurpose of Customer Chat: What the user was looking for (the purpose of initiating the chat)\nAssistance Provided: How the chatbot was able to assist the user\nProducts Inquired About: What products did the customer inquire about?\nComplaints Raised: Criticisms or complaints the user raised about the company or its' products.\nCustomer Tone: A short description of the customer's perceived tone during the chat (for example: hostile, neutral, friendly, etc.)\nFollow-Up Required By Sales: Are there any actions a human sales agent should follow up on? (for example: providing more details about a product)\nFollow-Up Required By Customer Support: Are there any actions a human customer support agent should follow up on? (for example: addressing a complaint about a product)\nFollow-Up Required By Management: Are there any actions company management should follow up on? (for example: a complaint about an employee)\nChat Summary: A brief summary of the main points discussed in the chat\nAdditional Noteworthy Information: Any other information you find relevant or that may require follow-up\n\n- If you didn't get an answer for any of the above points, you should insert \"None\" as the value\n- You should format the data send to the tool as a json object with each key equal to the column names in the list below(before the colon)\n\nPlease follow the below guidelines when making responses:\n- If the user starts a chat with a question or image, reply to them first then tell them to type \"end\" when they wish to end the chat\n- If the user starts a chat with a greeting instead, greet them back then tell them to type \"end\" when they wish to end the chat\n- Aside from this first message, NEVER tell the user to type \"end\" when they want to end the chat. You should ONLY ever mention this is the first response you give (beginning of the chat) \n- Always offer a response from the JSON object above if possible. If you don't find an answer in this object, check the website.\n- NEVER say \"I will check the website\" when replying to the customer. The customer doesn't need to know the source of the information you provide.\n- NEVER say \"the JSON file\" when replying to the customer. The customer doesn't need to know the source of the information you provide.\n- Be concise but thorough. Do not exceed 2 small sentences in any single text. If you wish to provide a long answer, split it into multiple responses while maintaining context of the previous responses, as a human would while replying.\n- Your answers are on behalf of the company. When a customer says the word \"you\", they mean the company Golden Teatox.\n- If the user provides a general greeting like “Hello”, greet them back and say “How can I help you?”\n- Prioritize accuracy over speculation\n- Maintain a professional and helpful tone\n- When uncertain, acknowledge limitations. Do not provide information if you're unsure about the reliability of the source. Try to source most answers from the JSON object provided.\n- Format responses for easy reading on mobile devices\n- Include actionable information when appropriate\n- Refrain from telling the customer that the information may not be up-to-date. Assume the information is up-to-date.\n- Do not fabricate anything in the JSON object\n- Aside from assisting the customer, your other major goal is to increase sales for the company. If a customer shows interest in a particular product, make sure to give them a link to the product page, where they can purchase the product. Also, provide information about the advantages of a product when a customer shows interest in it.\n- You should NEVER answer any questions not related to Golden Teatox. Respectfully, decline and steer the conversation back towards Golden Teatox.\n- Any Base64-Encoded string you receive should be considered an image. You should decode the image and analyze it.  \n- If the user provides an image or document, wait a few seconds before replying to see if there is a follow-up question. If no follow-up question is sent, inquire about the image.\n- You should access any image link sent and analyze it\n- If a user asks about an image they previously sent, you should consider any image links that were sent previously and access them again if necessary to answer the user's question\n\nPlease note the following points regarding your limitations:\n- Mention if you're unable to process certain file formats\n- Indicate if an image is unclear or if details are difficult to discern\n- Note if audio quality impacts transcription accuracy\n\nPlease note the following points regarding security and privacy:\n- Do not store or remember sensitive information shared in files, images, or voice notes\n- Do not share personal information across different user interactions\n- Inform users about data privacy limitations when relevant\n\nAnalyze all inputs carefully before responding. Your goal is to provide value through accurate information and helpful assistance. Another major goal is to help the company improve sales. \n",
+          "passthroughBinaryImages": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        720,
+        280
+      ],
+      "id": "71421d77-9b53-412a-bce6-379d1359d5c3",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "content": "## Text",
+        "height": 180,
+        "width": 900
+      },
+      "id": "1e8245bd-8eef-4706-8843-17eedb67d5e0",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        -40
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Image",
+        "height": 180,
+        "width": 900
+      },
+      "id": "c6641de0-77e9-4557-863b-b70f236081fe",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        360
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Document",
+        "height": 360,
+        "width": 900
+      },
+      "id": "e69eae07-6553-48c8-b014-cbc8b2745572",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -360,
+        560
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.imgbb.com/1/upload",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-type",
+              "value": "multipart/form-data"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "image",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c8f52c85-72cc-48e2-9ed8-c5c8c5c8bfbc",
+      "name": "Upload Img to ImgBB for URL",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        180,
+        380
+      ],
+      "notesInFlow": true,
+      "typeVersion": 4.2,
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "igM4shVwiRal7zps",
+          "name": "Query Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6dadf778-5fa5-41d5-8d5b-f3d94af05aee",
+              "name": "data",
+              "value": "={{ $json.data.image.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        400,
+        380
+      ],
+      "id": "a8c4123e-aa23-4965-86a7-416c10b9c750",
+      "name": "Image"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        720,
+        500
+      ],
+      "id": "a5d843fc-a456-4053-a64f-c5c168c8c5ab",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "9DElWGcWCRNlmEBd",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f52d2aaa-e0b2-45e5-8c4b-ceef42182a0d",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.messages[0].document.mime_type }}",
+              "rightValue": "application/pdf"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "531e25a2-fb15-4f95-8fe3-3285176ebe9a",
+      "name": "File Filter",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -260,
+        680
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=memories12_{{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        840,
+        500
+      ],
+      "id": "55b3c921-0c60-4479-b6aa-57da02a9e7a3",
+      "name": "AI Memory"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "aUjGwZNBwrwkvajg",
+          "mode": "list",
+          "cachedResultName": "Insert Chat Report"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "data": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('data', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "data"
+          ],
+          "schema": [
+            {
+              "id": "data",
+              "displayName": "data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        500
+      ],
+      "id": "1e5d975a-ba6e-4e83-bfca-33eb63350dce",
+      "name": "Insert Google Sheets",
+      "notesInFlow": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Input type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Audio": {
+      "main": [
+        [
+          {
+            "node": "Transcribe Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe Audio": {
+      "main": [
+        [
+          {
+            "node": "Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download File": {
+      "main": [
+        [
+          {
+            "node": "File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get File Url": {
+      "main": [
+        [
+          {
+            "node": "Download File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fix mimeType for Audio": {
+      "main": [
+        [
+          {
+            "node": "Send audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Audio": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Image Url": {
+      "main": [
+        [
+          {
+            "node": "Download Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Audio Url": {
+      "main": [
+        [
+          {
+            "node": "Download Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Audio Response": {
+      "main": [
+        [
+          {
+            "node": "Fix mimeType for Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "From audio to audio?": {
+      "main": [
+        [
+          {
+            "node": "Generate Audio Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input type": {
+      "main": [
+        [
+          {
+            "node": "Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Audio Url",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Image Url",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "File Filter",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Not supported",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Image": {
+      "main": [
+        [
+          {
+            "node": "Upload Img to ImgBB for URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "From audio to audio?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Img to ImgBB for URL": {
+      "main": [
+        [
+          {
+            "node": "Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File Filter": {
+      "main": [
+        [
+          {
+            "node": "Get File Url",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Incorrect format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0833026a-a126-42e5-a6fb-04e00769054c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c9f1107a256a9ba26561cf02cded890046f792cf60da7bc6515f4ec01ae5754d"
+  },
+  "id": "xghsZnaPWQ3O4r3j",
+  "tags": []
+}

@@ -1,0 +1,10 @@
+Awesome! 🎉
+I’ve started building your personalized Sales Support AI agent — trained on your business, tuned for your customers, and optimized to drive results. 🛠️🤖
+
+🔒 Before we activate your agent, I just need to verify your identity.
+
+👉 A verification code has just been sent to your email ({client_email})
+📬 Please check your inbox (and spam folder just in case), then enter the code here to continue.
+
+This ensures your AI assistant is securely connected to your brand — and only yours. 🔐
+I’ll continue building in the background while you verify!
